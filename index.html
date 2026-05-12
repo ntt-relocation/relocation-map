@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>支障移転 位置確認</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>支障移転 位置確認</h2>
+
+<input
+  type="text"
+  id="address"
+  placeholder="住所を入力（例：横浜市保土ケ谷区峰岡町3丁目）"
+>
+<button onclick="searchAddress()">検索</button>
+
+<br><br>
+
+<label>
+  電柱番号：
+  <input type="text" id="poleNumber" placeholder="例：3-406">
+</label>
+
+<br><br>
+
+<label>
+  移設区分：
+  <select id="moveStage">
+    <option value="before">移設前</option>
+  </select>
+</label>
+
+<br><br>
+
+<button onclick="setPole()">電柱を置く</button>
+<button onclick="enableRoadDirectionMode()">道路方向を指定</button>
+
+<br><br>
+
+<strong>【移設量入力】</strong><br>
+道路方向（±m）：
+<input type="number" id="inputX" step="0.1">
+m　
+民地方向（±m）：
+<input type="number" id="inputY" step="0.1">
+m
+<button id="xyApplyBtn" onclick="applyXYMove()">この数値で配置</button>
+<button onclick="resetXY()">やり直し</button>
+
+<div id="distanceInfo"></div>
+<div id="xyInfo"></div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
