@@ -1,5 +1,5 @@
 // ==============================
-// URLパラメータ取得（超重要）
+// URLパラメータ取得
 // ==============================
 const params = new URLSearchParams(window.location.search);
 const caseId = params.get("caseId");
@@ -22,6 +22,41 @@ L.tileLayer(
     maxNativeZoom: 19
   }
 ).addTo(map);
+
+// ==============================
+// ✅ 住所検索（復活部分）
+// ==============================
+function searchAddress() {
+
+  const address = document.getElementById("address").value;
+
+  if (!address) {
+    alert("住所を入力してください");
+    return;
+  }
+
+  const url =
+    "https://nominatim.openstreetmap.org/search?format=json&q=" +
+    encodeURIComponent(address);
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+      if (data.length === 0) {
+        alert("住所が見つかりませんでした");
+        return;
+      }
+
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
+
+      map.setView([lat, lng], 19);
+    })
+    .catch(() => {
+      alert("住所検索に失敗しました");
+    });
+}
 
 // ==============================
 // 状態
@@ -168,7 +203,7 @@ function resetXY() {
 }
 
 // ==============================
-// ★ 保存＋送信（本体）
+// 保存＋送信
 // ==============================
 function saveAndSend() {
 
