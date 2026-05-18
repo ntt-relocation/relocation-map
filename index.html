@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>支障移転 位置確認</title>
+  <title>NTT 支障移転位置確認</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="style.css">
@@ -10,41 +10,35 @@
 
 <body>
 
-<h2>支障移転 位置確認</h2>
+<h2>NTT 支障移転位置確認システム</h2>
 
-<input
-  type="text"
-  id="address"
-  placeholder="住所を入力（例：横浜市保土ケ谷区峰岡町3丁目）"
->
-<button onclick="searchAddress()">検索</button>
+<div class="card">
+  <input type="text" id="address" placeholder="住所を入力（例：横浜市保土ケ谷区）">
+  <button onclick="searchAddress()">住所検索</button>
+</div>
 
-<br><br>
+<div class="card">
+  <button onclick="setPole()">📍 電柱を置く</button>
+  <button onclick="enableRoadDirectionMode()">➡ 道路方向</button>
+  <button onclick="openStreetView()">🗺 ストリートビュー</button>
+</div>
 
-<button onclick="setPole()">電柱を置く</button>
-<button onclick="enableRoadDirectionMode()">道路方向を指定</button>
+<div class="card">
+  <strong>移設量入力</strong><br>
+  道路方向：
+  <input type="number" id="inputX" step="0.1"> m
+  
+  民地方向：
+  <input type="number" id="inputY" step="0.1"> m
+  <br><br>
 
-<br><br>
+  <button onclick="applyXYMove()">配置</button>
+  <button onclick="resetXY()">リセット</button>
+</div>
 
-<strong>【移設量入力】</strong><br>
-
-道路方向（±m）：
-<input type="number" id="inputX" step="0.1">
-m　
-
-民地方向（±m）：
-<input type="number" id="inputY" step="0.1">
-m
-
-<button onclick="applyXYMove()">この数値で配置</button>
-<button onclick="resetXY()">やり直し</button>
-
-<br><br>
-
-<!-- ★ ④ 保存して送信 -->
-<button class="send-btn" onclick="saveAndSend()">
-  保存して送信
-</button>
+<div class="card">
+  <button class="send-btn" onclick="saveAndSend()">保存して送信</button>
+</div>
 
 <div id="distanceInfo"></div>
 <div id="xyInfo"></div>
@@ -56,4 +50,3 @@ m
 
 </body>
 </html>
-``
