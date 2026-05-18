@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <title>NTT 支障移転位置確認</title>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -15,29 +12,16 @@
 
 <h2>NTT 支障移転位置確認システム</h2>
 
-<!-- 住所検索 -->
 <div class="card">
-  <input
-    type="text"
-    id="address"
-    placeholder="住所を入力（例：横浜市保土ケ谷区峰岡町）"
-  >
+  <input type="text" id="address" placeholder="住所を入力">
   <button onclick="searchAddress()">住所検索</button>
 </div>
 
-<!-- 操作 -->
 <div class="card">
   <button onclick="setPole()">📍 電柱を置く</button>
   <button onclick="enableRoadDirectionMode()">➡ 道路方向</button>
-
-  <!-- ★追加された重要ボタン -->
-  <button style="background:#4CAF50;color:white;"
-    onclick="enableMoveSelectMode()">
-    移設先クリック（自動計算）
-  </button>
 </div>
 
-<!-- 入力 -->
 <div class="card">
   <strong>移設量入力</strong><br><br>
 
@@ -53,21 +37,15 @@
   <button onclick="resetXY()">リセット</button>
 </div>
 
-<!-- 送信 -->
 <div class="card">
-  <button class="send-btn" onclick="saveAndSend()">
-    保存して送信
-  </button>
+  <button class="send-btn" onclick="saveAndSend()">保存して送信</button>
 </div>
 
-<!-- 表示 -->
 <div id="distanceInfo"></div>
 <div id="xyInfo"></div>
 
-<!-- 地図 -->
 <div id="map"></div>
 
-<!-- JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="app.js"></script>
 
