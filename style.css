@@ -1,17 +1,38 @@
 body {
   font-family: sans-serif;
+  background: #f5f7fa;
   margin: 10px;
 }
 
+h2 {
+  margin-bottom: 10px;
+}
+
+.card {
+  background: #fff;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
 button {
-  padding: 6px 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #e0e0e0;
   margin: 3px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #d0d0d0;
 }
 
 .send-btn {
   background: #1a73e8;
   color: white;
-  border: none;
 }
 
 #map {
