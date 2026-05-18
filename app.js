@@ -1,66 +1,20 @@
-// ==============================
-// URLパラメータ取得
-// ==============================
+// ✅ URLパラメータ
 const params = new URLSearchParams(window.location.search);
 const caseId = params.get("caseId");
 const replyTo = params.get("replyTo");
 
 if (!caseId || !replyTo) {
-  alert("案件情報が不足しています。送信元へ確認してください。");
+  alert("URLが不正です");
 }
 
-// ==============================
-// 地図初期化（横浜）
-// ==============================
-const map = L.map("map", { maxZoom: 22 })
-  .setView([35.4437, 139.6380], 16);
+// ✅ 地図
+const map = L.map("map").setView([35.4437, 139.6380], 16);
 
 L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  {
-    maxZoom: 22,
-    maxNativeZoom: 19
-  }
+"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
 ).addTo(map);
 
-// ==============================
-// ✅ 住所検索（復活部分）
-// ==============================
-function searchAddress() {
-
-  const address = document.getElementById("address").value;
-
-  if (!address) {
-    alert("住所を入力してください");
-    return;
-  }
-
-  const url =
-    "https://nominatim.openstreetmap.org/search?format=json&q=" +
-    encodeURIComponent(address);
-
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-
-      if (data.length === 0) {
-        alert("住所が見つかりませんでした");
-        return;
-      }
-
-      const lat = parseFloat(data[0].lat);
-      const lng = parseFloat(data[0].lon);
-
-      map.setView([lat, lng], 19);
-    })
-    .catch(() => {
-      alert("住所検索に失敗しました");
-    });
-}
-
-// ==============================
-// 状態
-// ==============================
+// ✅ 状態
 let placingPole = false;
 let roadMode = false;
 
@@ -70,32 +24,32 @@ let roadVector = null;
 let roadLine = null;
 let distanceLine = null;
 
-// ==============================
-// 電柱設置
-// ==============================
+// ✅ 住所検索
+function searchAddress() {
+  const address = addressInput.value;
+
+  fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + address)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.length) return alert("見つかりません");
+      map.setView([data[0].lat, data[0].lon], 18);
+    });
+}
+
+// ✅ 電柱設置
 function setPole() {
   placingPole = true;
-  alert("移設前電柱をクリックしてください");
 }
 
-// ==============================
-// 道路方向
-// ==============================
+// ✅ 道路方向
 function enableRoadDirectionMode() {
-  if (!beforeMarker) {
-    alert("先に電柱を置いてください");
-    return;
-  }
+  if (!beforeMarker) return alert("先に電柱を置いてください");
   roadMode = true;
-  alert("道路方向をクリックしてください");
 }
 
-// ==============================
-// 地図クリック
-// ==============================
+// ✅ 地図クリック
 map.on("click", e => {
 
-  // 道路方向
   if (roadMode) {
     const base = beforeMarker.getLatLng();
     const target = e.latlng;
@@ -107,54 +61,41 @@ map.on("click", e => {
     roadVector = { x: dx / len, y: dy / len };
 
     if (roadLine) map.removeLayer(roadLine);
-
-    roadLine = L.polyline([base, target], {
-      color: "blue",
-      weight: 4,
-      dashArray: "6,4"
-    }).addTo(map);
+    roadLine = L.polyline([base, target], { color: "blue" }).addTo(map);
 
     roadMode = false;
     return;
   }
 
-  // 電柱
   if (!placingPole) return;
 
   if (beforeMarker) map.removeLayer(beforeMarker);
 
-  beforeMarker = L.marker(e.latlng).addTo(map);
-  placingPole = false;
+  beforeMarker = L.marker(e.latlng, { draggable: true }).addTo(map);
 
-  map.setView(beforeMarker.getLatLng(), 20);
+  beforeMarker.on("dragend", () => {
+    if (afterMarker && roadVector) applyXYMove();
+  });
+
+  placingPole = false;
 });
 
-// ==============================
-// XY配置
-// ==============================
+// ✅ XY移動
 function applyXYMove() {
 
   if (!beforeMarker || !roadVector) {
-    alert("先に方向を設定してください");
+    alert("方向設定してください");
     return;
   }
 
   const x = parseFloat(inputX.value);
   const y = parseFloat(inputY.value);
 
-  if (isNaN(x) || isNaN(y)) {
-    alert("数値を入力してください");
-    return;
-  }
-
   const base = beforeMarker.getLatLng();
   const perp = { x: -roadVector.y, y: roadVector.x };
 
-  const meterToLat = 1 / 111111;
-  const meterToLng = 1 / (111111 * Math.cos(base.lat * Math.PI / 180));
-
-  const lat = base.lat + (roadVector.y * x + perp.y * y) * meterToLat;
-  const lng = base.lng + (roadVector.x * x + perp.x * y) * meterToLng;
+  const lat = base.lat + (roadVector.y * x + perp.y * y) / 111111;
+  const lng = base.lng + (roadVector.x * x + perp.x * y) / 111111;
 
   if (!afterMarker) {
     afterMarker = L.marker([lat, lng]).addTo(map);
@@ -162,53 +103,39 @@ function applyXYMove() {
     afterMarker.setLatLng([lat, lng]);
   }
 
-  updateInfo(x, y);
-}
+  const d = base.distanceTo(afterMarker.getLatLng());
 
-// ==============================
-// 表示更新
-// ==============================
-function updateInfo(x, y) {
-  xyInfo.innerText =
-    `移設量：道路方向 ${x}m / 民地方向 ${y}m`;
-
-  const d = beforeMarker.getLatLng().distanceTo(afterMarker.getLatLng());
-
-  distanceInfo.innerText =
-    `移設距離：約 ${d.toFixed(2)}m`;
+  xyInfo.innerText = `X:${x}m Y:${y}m`;
+  distanceInfo.innerText = `距離：約${d.toFixed(2)}m`;
 
   if (distanceLine) map.removeLayer(distanceLine);
-
-  distanceLine = L.polyline(
-    [beforeMarker.getLatLng(), afterMarker.getLatLng()],
-    { color: "purple", dashArray: "5,5" }
-  ).addTo(map);
+  distanceLine = L.polyline([base, afterMarker.getLatLng()], { color: "purple" }).addTo(map);
 }
 
-// ==============================
-// やり直し
-// ==============================
+// ✅ リセット
 function resetXY() {
   if (afterMarker) map.removeLayer(afterMarker);
-  if (roadLine) map.removeLayer(roadLine);
-  if (distanceLine) map.removeLayer(distanceLine);
-
   afterMarker = null;
   roadVector = null;
-
-  inputX.value = "";
-  inputY.value = "";
-  distanceInfo.innerText = "";
-  xyInfo.innerText = "";
 }
 
-// ==============================
-// 保存＋送信
-// ==============================
+// ✅ ストリートビュー
+function openStreetView() {
+  if (!beforeMarker) return alert("電柱を置いてください");
+
+  const p = beforeMarker.getLatLng();
+
+  window.open(
+    `https://www.google.com/maps?q=&layer=c&cbll=${p.lat},${p.lng}`,
+    "_blank"
+  );
+}
+
+// ✅ 送信
 function saveAndSend() {
 
-  if (!beforeMarker || !afterMarker || !roadVector) {
-    alert("位置が未確定です");
+  if (!beforeMarker || !afterMarker) {
+    alert("位置未確定");
     return;
   }
 
@@ -219,23 +146,14 @@ function saveAndSend() {
     after: afterMarker.getLatLng(),
     xMove: parseFloat(inputX.value),
     yMove: parseFloat(inputY.value),
-    distance: beforeMarker.getLatLng()
-      .distanceTo(afterMarker.getLatLng()),
-    timestamp: new Date().toISOString()
+    distance: beforeMarker.getLatLng().distanceTo(afterMarker.getLatLng())
   };
 
-  fetch("【ここにGASのURL】", {
+  fetch("【ここにGAS URL】", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   })
-    .then(res => res.json())
-    .then(() => {
-      alert("送信完了しました");
-    })
-    .catch(() => {
-      alert("送信失敗");
-    });
+    .then(() => alert("送信完了"))
+    .catch(() => alert("失敗"));
 }
